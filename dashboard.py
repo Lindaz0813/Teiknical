@@ -431,14 +431,24 @@ def render_tab(tab):
     elif tab == "tab-4":
         spp = (df_p4[["sample_id", "project"]].drop_duplicates()
                .groupby("project")["sample_id"].count().reset_index()
-               .rename(columns={"sample_id": "Samples"}))
+               .rename(columns={"sample_id": "Samples"})
+               .sort_values("project"))
+        bar_colors = ["#4E79A7", "#F28E2B", "#59A14F", "#B07AA1", "#76B7B2"]
         proj_fig = go.Figure(go.Bar(
-            x=spp["project"], y=spp["Samples"],
-            text=spp["Samples"], textposition="outside",
-            marker_color=ACCENT, marker_line_width=0,
+            x=spp["project"],
+            y=spp["Samples"],
+            text=spp["Samples"],
+            textposition="outside",
+            marker_color=[bar_colors[i % len(bar_colors)] for i in range(len(spp))],
+            marker_line_width=0,
         ))
-        proj_fig.update_layout(**CHART_LAYOUT, title_text="Samples per Project",
-                                xaxis_title="Project", yaxis_title="Samples", height=320)
+        proj_fig.update_layout(
+            **CHART_LAYOUT,
+            title_text="Samples per Project",
+            xaxis_title="Project", yaxis_title="Samples",
+            height=340,
+        )
+        proj_fig.update_yaxes(range=[0, spp["Samples"].max() * 1.22])
 
         subj_resp = (df_p4[["subject_id", "response"]].drop_duplicates()
                      .groupby("response")["subject_id"].count().reset_index()
@@ -446,18 +456,32 @@ def render_tab(tab):
         subj_resp["Response"] = subj_resp["Response"].map(
             {"yes": "Responder", "no": "Non-Responder"})
         resp_fig = go.Figure(go.Pie(
-            labels=subj_resp["Response"], values=subj_resp["Subjects"], hole=0.5,
-            marker=dict(colors=[ACCENT, "#E05252"], line=dict(color=WHITE, width=2))))
-        resp_fig.update_layout(**CHART_LAYOUT, title_text="Response Distribution", height=320)
+            labels=subj_resp["Response"],
+            values=subj_resp["Subjects"],
+            hole=0.5,
+            marker=dict(colors=[ACCENT, "#E05252"], line=dict(color=WHITE, width=2)),
+            texttemplate="%{label}<br><b>%{value}</b> (%{percent})",
+            textposition="outside",
+            hovertemplate="%{label}: %{value} subjects (%{percent})<extra></extra>",
+        ))
+        resp_fig.update_layout(**CHART_LAYOUT, title_text="Response Distribution",
+                                height=340, showlegend=True)
 
         subj_sex = (df_p4[["subject_id", "sex"]].drop_duplicates()
                     .groupby("sex")["subject_id"].count().reset_index()
                     .rename(columns={"subject_id": "Subjects", "sex": "Sex"}))
         subj_sex["Sex"] = subj_sex["Sex"].map({"M": "Male", "F": "Female"})
         sex_fig = go.Figure(go.Pie(
-            labels=subj_sex["Sex"], values=subj_sex["Subjects"], hole=0.5,
-            marker=dict(colors=["#4E79A7", "#B07AA1"], line=dict(color=WHITE, width=2))))
-        sex_fig.update_layout(**CHART_LAYOUT, title_text="Sex Distribution", height=320)
+            labels=subj_sex["Sex"],
+            values=subj_sex["Subjects"],
+            hole=0.5,
+            marker=dict(colors=["#4E79A7", "#B07AA1"], line=dict(color=WHITE, width=2)),
+            texttemplate="%{label}<br><b>%{value}</b> (%{percent})",
+            textposition="outside",
+            hovertemplate="%{label}: %{value} subjects (%{percent})<extra></extra>",
+        ))
+        sex_fig.update_layout(**CHART_LAYOUT, title_text="Sex Distribution",
+                               height=340, showlegend=True)
 
         bcell = df_p4[(df_p4["sex"] == "M") & (df_p4["response"] == "yes") &
                       (df_p4["population"] == "b_cell")]
