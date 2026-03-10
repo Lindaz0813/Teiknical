@@ -1,0 +1,25 @@
+============================================================
+PART 4 – Melanoma PBMC Baseline Miraclib Subset
+============================================================
+
+Total qualifying samples : 656
+
+--- Samples per project ---
+project  n_samples
+   prj1        384
+   prj3        272
+
+--- Subjects: responders vs non-responders ---
+response  n_subjects
+      no         325
+     yes         331
+
+--- Subjects: males vs females ---
+sex  n_subjects
+  F         312
+  M         344
+
+--- Avg B cells: melanoma males, responders, time=0 ---
+Average B cell count: 10401.28
+
+============================================================
